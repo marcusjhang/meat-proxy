@@ -148,6 +148,11 @@ The third column is the payoff — the actual answer, in full, so the session te
 something on the way out. Never leave it as "see above" or a restatement of the question.
 For a 2/2, write "—" and move on.
 
+The opening one-liner is the tier's voice in a single sentence — paraphrase the tier's
+meaning from `references/scoring.md`. The closing debrief is one blunt sentence per answer
+scored below 2, each naming what the gap costs them; when everything scored 2, say so in one
+line and skip it.
+
 ### 7. Log it
 
     python3 scripts/history.py append --index <index> --tier "<Tier>" --session "<short label>"
@@ -174,9 +179,12 @@ asked to run non-interactively, or when handed a session summary plus a set of a
 3. Emit, in this order: the five questions as a numbered list, the five grades with a
    one-line justification each, then the full verdict card from step 6.
 
-Never invent answers on the human's behalf. If an answer is missing, it's a 0. Do not log
-the run (see step 7). To keep test scores out of the real history, point the scripts
-somewhere disposable: `MEAT_PROXY_HOME=/tmp/mp-test python3 scripts/history.py trend`.
+Never invent answers on the human's behalf. If an answer is missing, it's a 0.
+
+Do not log a non-interactive run — no `history.py append`. Reading is safe, so still run
+`history.py trend` against the real file to fill the Trend line; this run simply isn't part
+of it yet. Only for a fully sandboxed run that must not touch the real file at all, point
+the scripts elsewhere: `MEAT_PROXY_HOME=/tmp/mp-test python3 scripts/history.py trend`.
 
 ## Wiring it to run by itself
 
