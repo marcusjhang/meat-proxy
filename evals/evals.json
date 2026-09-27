@@ -1,0 +1,48 @@
+{
+  "skill_name": "meat-proxy",
+  "notes": "Non-interactive mode evals. Each prompt hands the skill a session summary and a candidate answer sheet; the skill must build five free-recall questions, grade honestly, and emit the verdict card. Run with the skill available at the repo root.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "strong-candidate",
+      "prompt": "Run the meat-proxy skill in non-interactive mode against this completed session.\n\nSESSION SUMMARY:\nWe fixed a race condition in the job scheduler. Two workers could claim the same job because the SELECT that found a pending job and the UPDATE that claimed it were not atomic. We replaced the check-then-set with a single atomic statement: UPDATE jobs SET status='claimed' WHERE status='pending' ... RETURNING id, and added a partial index on status='pending' in migrations/0042_pending_index.sql to keep the claim query fast. We chose the atomic UPDATE over a Postgres advisory lock because the lock would serialize all claim attempts across every worker, and we only needed per-row atomicity. We left the zero-row retry path untested: when the UPDATE returns no rows we currently sleep briefly and loop, which could spin. Files changed: scheduler/claimer.py, migrations/0042_pending_index.sql.\n\nCANDIDATE ANSWERS:\n- changed: \"The claim is now one atomic UPDATE ... WHERE status='pending' RETURNING id in scheduler/claimer.py, plus a partial index from migration 0042.\"\n- why: \"We skipped the advisory lock because it would serialize all workers, and we only needed per-row atomicity.\"\n- tradeoff: \"The zero-row retry path is untested; it sleeps and loops, so it could spin.\"\n- mechanism: \"Postgres evaluates the UPDATE's WHERE and performs the update atomically, so two workers can't both see the row as pending and both win.\"\n- next: \"Test the zero-row path and bound the loop.\"\n\nOutput the five questions, the five grades, and the full verdict card.",
+      "expected_output": "Five dimension questions (changed/why/tradeoff/mechanism/next), grades of 2 across the board, and a verdict card reading approximately 'Meat Proxy: 0/100 — Driver'.",
+      "files": [],
+      "assertions": [
+        "Verdict header matches the pattern 'Meat Proxy: <int>/100 — <Tier>'",
+        "All five dimensions appear: changed, why, tradeoff, mechanism, next",
+        "Every question is open-ended free recall — none is yes/no or multiple choice",
+        "Final index is below 20 (Driver) and matches scripts/score.py for the stated grades",
+        "Debrief column contains a specific model answer for each graded-1 answer, or is empty when all answers score 2"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "pure-meat-proxy",
+      "prompt": "Run the meat-proxy skill in non-interactive mode against this completed session.\n\nSESSION SUMMARY:\nWe added Stripe webhook handling. New endpoint POST /webhooks/stripe verifies the Stripe signature against the raw request body, then dispatches to handlers keyed by event type. To dedupe deliveries we store each event id in a processed_events table using INSERT ... ON CONFLICT DO NOTHING, and skip processing when zero rows are inserted. We chose Postgres over Redis for this because the table already existed and we wanted durability across restarts. We deferred handling for invoice.payment_failed: it currently only logs. Files changed: api/webhooks.py, models/processed_event.py, migrations/0051_processed_events.sql.\n\nCANDIDATE ANSWERS:\n- changed: \"we added some Stripe webhook stuff\"\n- why: \"it just seemed like the better option\"\n- tradeoff: \"not sure, I think it's fine\"\n- mechanism: \"I don't know\"\n- next: \"keep going with Stripe\"\n\nOutput the five questions, the five grades, and the full verdict card.",
+      "expected_output": "Five dimension questions, grades that are mostly 0/1, and a verdict card reading approximately 'Meat Proxy: 90/100 — Pure Meat Proxy' with blunt, specific debrief answers for each gap.",
+      "files": [],
+      "assertions": [
+        "Verdict header matches the pattern 'Meat Proxy: <int>/100 — <Tier>'",
+        "Final index is 80 or above (Pure Meat Proxy)",
+        "Final index matches scripts/score.py for the grades assigned",
+        "Every question graded below 2 has a concrete model answer in the debrief column, not a restatement of the question",
+        "The 'why' answer ('seemed like the better option') is graded 0 or 1, not 2"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "confident-bluff",
+      "prompt": "Run the meat-proxy skill in non-interactive mode against this completed session.\n\nSESSION SUMMARY:\nWe migrated the frontend from Create React App to Vite. We removed react-scripts, added vite.config.ts with a dev proxy for /api to localhost:8000, and dropped the custom service worker because offline caching was never actually used. Production build time dropped from 42s to 3s because Vite uses esbuild for pre-bundling and skips bundling entirely during dev. We deferred migrating env vars from REACT_APP_* to VITE_*: for now a shim in vite.config.ts rewrites them at build time. Files changed: package.json, vite.config.ts, public/service-worker.js (deleted).\n\nCANDIDATE ANSWERS:\n- changed: \"Swapped react-scripts for Vite and added a dev proxy to the backend; builds went from 42s to 3s.\"\n- why: \"Because Vite is just faster, obviously.\"\n- tradeoff: \"We still pass REACT_APP_ env vars through a shim, so that migration is still pending.\"\n- mechanism: \"The service worker is what was doing the hot module reloading.\"\n- next: \"I don't know, remove the shim eventually?\"\n\nOutput the five questions, the five grades, and the full verdict card.",
+      "expected_output": "Five dimension questions, a low score on the confident-but-wrong 'mechanism' answer, and a verdict card around 'Meat Proxy: 50/100 — Passenger'. The debrief must call out the bluff.",
+      "files": [],
+      "assertions": [
+        "Verdict header matches the pattern 'Meat Proxy: <int>/100 — <Tier>'",
+        "The mechanism answer ('service worker was doing HMR') is graded 0 — it is factually wrong for this session",
+        "The verdict calls out the mechanism answer as confidently wrong rather than ignoring it",
+        "Final index matches scripts/score.py for the grades assigned",
+        "The 'why' answer is not graded 2 (it names no specific reason)"
+      ]
+    }
+  ]
+}
