@@ -76,7 +76,15 @@ Rules for the questions:
   dump all five. Do not preview what's coming.
 - Keep them short. The value is in the answer, not the prompt.
 
-Read `references/question-bank.md` for stems and worked examples, and
+**Pick five distinct moments.** The pair that collides most is `why`/`mechanism` when one
+decision is also the key mechanism (why Vite is fast *is* how Vite is fast), and
+`tradeoff`/`next` when a deferral is both the thing given up and the thing left to do. When
+that happens, quiz the decision's *alternative* for `why` and the *behavior* for `mechanism`,
+and pick a verification ("how would we know it's wrong?") for `next` so the deferral stays in
+`tradeoff` alone. If two questions would accept the same answer, one of them is redundant —
+replace it with a different moment.
+
+Read `references/question-bank.md` for stems, worked examples, and the overlap rule, and
 `references/scoring.md` for the rubric in detail.
 
 ### 3. Interrogate
@@ -89,16 +97,23 @@ it out yet; note it and let the verdict land.
 
 ### 4. Grade
 
-Score each answer 0, 1, or 2:
+Score each answer 0, 1, or 2. The whole rubric turns on one test: **is the answer correct,
+and does it carry a specific fact from this session?**
 
-- **0** — no idea, wrong, or a confident non-answer. "It was refactoring something."
-- **1** — partial, directionally right but hollow, or a bluff that happened to be near the
-  truth. A vague answer that names the right *area* but nothing specific lands here.
-- **2** — precise and correct: the right name, the right reason, the right edge case.
+- **2** — correct *and* specific: the right name, the right reason, the right edge case.
+- **1** — correct but hollow. It names the right area — the right file, the right feature,
+  the right idea — with no specifics attached, and nothing it says is wrong.
+  "We added some webhook stuff" when we added Stripe webhooks is a 1.
+- **0** — wrong *or* absent. This covers three cases: an honest "I don't know"; a confident
+  answer that is factually wrong for this session; and a fluent non-answer that commits to
+  nothing ("it seemed better", "because latency" when latency wasn't the reason). A wrong
+  reason is a 0 even if it sounds plausible.
 
-Grade the understanding, not the effort. A polite "good answer" you can't quite pin down
-is a 1. When torn between two scores, take the lower one — the cost of flattering a proxy
-is that they stay one.
+The boundary people get wrong is 0 vs 1, so state it plainly: **correct-but-vague is 1;
+wrong-or-nothing is 0.** If the answer contains no correct, session-specific fact, it's a 0.
+
+Grade the understanding, not the effort or the tone. When torn between two scores, take the
+lower one — the cost of flattering a proxy is that they stay one.
 
 ### 5. Compute the score with the script — don't do the math yourself
 
@@ -126,7 +141,7 @@ ALWAYS use this exact structure. Fill it, don't invent a new one:
 
 <For every question scored below 2, one blunt sentence on what that gap costs them.>
 
-**Trend:** <from scripts/history.py, or "first recorded session">
+**Trend:** <run `scripts/history.py trend` and use its output; with no history it prints "first recorded session">
 ```
 
 The third column is the payoff — the actual answer, in full, so the session teaches them
@@ -141,16 +156,27 @@ Then show the trend with `python3 scripts/history.py trend`. History lives at
 `~/.meat-proxy/history.jsonl`. The point of the log is the direction of travel: a single
 score is a mood, a trend is a habit. Call out when they're improving or slipping.
 
+**Log real, interactive sessions only.** Do not append from an eval, a test, or a retro run
+unless the human explicitly asks — a batch of test scores poisons the trend that makes the
+log worth having. In those cases show the Trend line from `history.py trend` as it stands,
+without writing.
+
 ## Non-interactive mode
 
 Sometimes you can't ask — an eval, a batch run, or a retro on a saved transcript. When
 asked to run non-interactively, or when handed a session summary plus a set of answers:
 
-1. Build the same five questions from the summary.
-2. Grade the supplied answers against the summary, same rubric, same honesty.
-3. Emit the question list, the grades, and the full verdict in one pass.
+1. Build the same five questions from the summary, and **fix them before grading**. Grading
+   is only deterministic once the questions are frozen; an answer is graded against the
+   question you chose, not a question it happens to fit.
+2. Grade the supplied answers against the summary — same rubric, same honesty. Correct but
+   vague is 1; wrong or absent is 0.
+3. Emit, in this order: the five questions as a numbered list, the five grades with a
+   one-line justification each, then the full verdict card from step 6.
 
-Never invent answers on the human's behalf. If an answer is missing, it's a 0.
+Never invent answers on the human's behalf. If an answer is missing, it's a 0. Do not log
+the run (see step 7). To keep test scores out of the real history, point the scripts
+somewhere disposable: `MEAT_PROXY_HOME=/tmp/mp-test python3 scripts/history.py trend`.
 
 ## Wiring it to run by itself
 

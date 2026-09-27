@@ -71,9 +71,28 @@ write, and left a TODO to bound memory.
 The weak column can be answered from the question alone. The strong column can only be
 answered by someone who was paying attention to *this* session.
 
+## Keeping the five dimensions distinct
+
+The dimensions overlap in two predictable places. Resolve them by construction, not by
+grading:
+
+- **`why` vs `mechanism`** collide when one decision is also the key mechanism — why Vite is
+  fast *is* how Vite is fast. Put the *alternative* under `why` ("why not keep react-scripts?")
+  and the *behavior* under `mechanism` ("what does esbuild actually do in dev?"), or pick a
+  different mechanism entirely.
+- **`tradeoff` vs `next`** collide when a deferral is both the thing given up and the thing
+  left to do. Keep the deferral in `tradeoff` ("what did we give up / what's the risk?") and
+  make `next` about verification — "how would we know if this is wrong?" — so the two can't be
+  answered by the same sentence.
+
+If two questions would accept the same answer, one is redundant. Replace it with a different
+moment from the session.
+
 ## Self-check before you send
 
 - Could someone who has never seen the session answer any of these from the wording alone?
   If yes, it's not testing comprehension — rewrite it.
 - Can *you*, the agent, produce a precise model answer to each? If not, drop it.
 - Are all five about a different moment? If two overlap, replace one.
+- Fix the five questions *before* grading — an answer is graded against the question you chose,
+  not one it happens to fit.

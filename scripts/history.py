@@ -59,7 +59,7 @@ def _append(args):
 def _trend(args):
     records = _read(_path(args))
     if not records:
-        print("No meat-proxy history yet. Run a session quiz first.")
+        print("first recorded session")
         return 0
 
     indexes = [r["index"] for r in records]

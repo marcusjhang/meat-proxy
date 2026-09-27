@@ -16,21 +16,41 @@ Because the scale is 0–10 over five questions, each step of 1 is worth 10 inde
 
 ## Grade rubric
 
+The rubric has one hinge: **is the answer correct, and does it carry a specific fact from
+this session?**
+
 | Score | Meaning | Looks like |
 |---|---|---|
-| **2** | Precise and correct | Names the actual thing — the file, the function, the reason, the edge case. You could act on it. |
-| **1** | Partial or hollow | Right area, no specifics. Or a bluff whose shape is near the truth but which contains nothing verified. |
-| **0** | Absent | "I don't know." Wrong. Or a fluent non-answer that commits to nothing. |
+| **2** | Correct and specific | Names the actual thing — the file, the function, the reason, the edge case. You could act on it. |
+| **1** | Correct but hollow | Names the right area — right file, right feature, right idea — with no specifics, and nothing in it is wrong. |
+| **0** | Wrong or absent | "I don't know." A confidently wrong answer. A fluent non-answer that commits to nothing. |
 
-Judgment calls, resolved in advance so two graders agree:
+**The 0/1 boundary, spelled out** (this is the one graders fumble):
 
-- **Right keyword, wrong reason → 1.** Knowing *that* we used a queue is not knowing *why*.
-- **Correct but only after the question is reread → still the same score.** The quiz measures
-  what they have, not how fast they produce it.
-- **Confident and wrong → 0**, and flag the confidence in the debrief. A proxy who believes
-  they understood is more dangerous than one who knows they didn't.
-- **"I don't know" → 0, but never punished in tone.** Honest zeros are what make the score real.
-- **Tie between 1 and 2 → give the 1.** When in doubt, don't flatter.
+- "We added some webhook stuff" when we added Stripe webhooks → **1** (correct area, no detail).
+- "We refactored the API layer" when we actually moved a CSS file → **0** (wrong area).
+- "It seemed better" / "because performance" when the real reason was route coverage → **0**
+  (a reason-shaped non-answer, and wrong).
+- "I don't know" → **0**.
+
+The rule of thumb: **if the answer contains no correct, session-specific fact, it is a 0.**
+
+Other judgment calls, resolved in advance so two graders agree:
+
+- **Right keyword, wrong reason → 0**, not 1. Knowing *that* we used a queue is not knowing
+  *why*, and a wrong reason is wrong.
+- **Correct but only after the question is reread → same score.** The quiz measures what they
+  have, not how fast they produce it.
+- **Confident and wrong → 0, and say so in the debrief.** A proxy who believes they understood
+  is more dangerous than one who knows they didn't.
+- **"I don't know" → 0, never punished in tone.** Honest zeros are what make the score real.
+- **Any tie → the lower score.** 0 over 1, 1 over 2. When in doubt, don't flatter.
+
+## Rounding
+
+`index = round_half_up(100 * (1 - earned / possible))` — the script uses `floor(x + 0.5)`,
+so an exact `.5` rounds up. With the standard five questions the result is always a multiple
+of 10, so this only matters for custom question counts.
 
 ## Tiers
 
